@@ -48,16 +48,6 @@ export const MagicCodeLogin: React.FC = () => {
         }
         break;
       }
-      case "awaiting-code-input": {
-        // Enact state change without phase change: save email to recover it in
-        // case the user reloads the page
-        transition((s) => {
-          if (s.phase !== "awaiting-code-input") throw new Error("Bug");
-          localStorage.setItem("email", s.email);
-          return s;
-        });
-        break;
-      }
       case "success": {
         localStorage.removeItem("email");
         setTimeout(() => {
@@ -73,6 +63,7 @@ export const MagicCodeLogin: React.FC = () => {
 
     const res = await apiClient.requestMagicCode(email);
     if (res.ok) {
+      localStorage.setItem("email", email);
       transition({ phase: "awaiting-code-input", email, error: null });
     } else {
       transition({
