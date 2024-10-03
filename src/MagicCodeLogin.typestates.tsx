@@ -8,6 +8,7 @@ import {
   TextInput,
   Text,
   Stack,
+  Anchor,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 
@@ -99,6 +100,13 @@ export const MagicCodeLogin: React.FC = () => {
     }
   };
 
+  const handleWrongEmail = (): void => {
+    if (state.phase !== "awaiting-code-input") return;
+
+    localStorage.removeItem("email");
+    transition({ phase: "awaiting-email-input", email: null, error: null });
+  };
+
   return (
     <Container size="xs" py="xl">
       {state.phase === "awaiting-email-input" ||
@@ -114,6 +122,7 @@ export const MagicCodeLogin: React.FC = () => {
           error={state.error}
           onSubmit={handleCodeSubmit}
           onInput={handleCodeInput}
+          onWrongEmail={handleWrongEmail}
         />
       ) : state.phase === "submitting-code" ? (
         <Text>Verifying...</Text>
@@ -168,11 +177,16 @@ const CodeForm: React.FC<{
   error: null | string;
   onSubmit: (code: string) => void;
   onInput: () => void;
-}> = ({ onSubmit, email, error, onInput }) => {
+  onWrongEmail: () => void;
+}> = ({ onSubmit, email, error, onInput, onWrongEmail }) => {
   return (
     <Stack align="center">
       <Text>
-        Please enter the code we sent to <strong>{email}</strong>:
+        Please enter the code we sent to <strong>{email}</strong> (
+        <Anchor component="button" onClick={onWrongEmail}>
+          wrong email?
+        </Anchor>
+        )
       </Text>
 
       <PinInput
